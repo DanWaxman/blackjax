@@ -4,6 +4,7 @@ from . import (
     mclmc_adaptation,
     meads_adaptation,
     pathfinder_adaptation,
+    walnuts_adaptation,
     window_adaptation,
 )
 
@@ -12,6 +13,7 @@ __all__ = [
     "low_rank_adaptation",
     "meads_adaptation",
     "window_adaptation",
+    "walnuts_adaptation",
     "pathfinder_adaptation",
     "mclmc_adaptation",
 ]

@@ -54,6 +54,13 @@ def _make_algorithm(name):
             step_size=0.1,
             inverse_mass_matrix=inv_mass,
         ),
+        "walnuts": lambda: blackjax.walnuts(
+            std_normal_logdensity,
+            step_size=0.1,
+            inverse_mass_matrix=inv_mass,
+            max_num_doublings=2,
+            max_num_micro_doublings=2,
+        ),
         "mala": lambda: blackjax.mala(std_normal_logdensity, step_size=0.1),
         "mclmc": lambda: blackjax.mclmc(
             std_normal_logdensity,
@@ -134,6 +141,7 @@ _NEEDS_RNG_KEY = {"mclmc", "ghmc", "adjusted_mclmc_dynamic", "dhmc", "dmhmc"}
 _MCMC_ALGORITHMS = [
     "hmc",
     "nuts",
+    "walnuts",
     "mala",
     "mclmc",
     "adjusted_mclmc",

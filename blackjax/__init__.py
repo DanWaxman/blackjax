@@ -10,6 +10,7 @@ from .adaptation.low_rank_adaptation import low_rank_window_adaptation
 from .adaptation.mclmc_adaptation import mclmc_find_L_and_step_size
 from .adaptation.meads_adaptation import meads_adaptation
 from .adaptation.pathfinder_adaptation import pathfinder_adaptation
+from .adaptation.walnuts_adaptation import walnuts_adaptation
 from .adaptation.window_adaptation import window_adaptation
 from .base import SamplingAlgorithm, VIAlgorithm
 from .diagnostics import effective_sample_size as ess
@@ -29,6 +30,7 @@ from .mcmc import mclmc as _mclmc
 from .mcmc import nuts as _nuts
 from .mcmc import periodic_orbital, random_walk
 from .mcmc import rmhmc as _rmhmc
+from .mcmc import walnuts as _walnuts
 from .mcmc.random_walk import additive_step_random_walk as _additive_step_random_walk
 from .mcmc.random_walk import (
     irmh_as_top_level_api,
@@ -103,6 +105,7 @@ def generate_top_level_api_from(module):
 # MCMC
 hmc = generate_top_level_api_from(_hmc)
 nuts = generate_top_level_api_from(_nuts)
+walnuts = generate_top_level_api_from(_walnuts)
 rmh = GenerateSamplingAPI(rmh_as_top_level_api, random_walk.init, random_walk.build_rmh)
 irmh = GenerateSamplingAPI(
     irmh_as_top_level_api, random_walk.init, random_walk.build_irmh
@@ -172,7 +175,7 @@ laplace_dmhmc = GenerateSamplingAPI(
     ),
 )
 
-hmc_family = [hmc, nuts, mhmc]
+hmc_family = [hmc, nuts, walnuts, mhmc]
 
 # SMC
 adaptive_persistent_sampling_smc = generate_top_level_api_from(
@@ -234,6 +237,7 @@ __all__ = [
     "hmc",  # mcmc
     "mhmc",
     "nuts",
+    "walnuts",
     "dhmc",
     "dmhmc",
     "mala",
@@ -258,6 +262,7 @@ __all__ = [
     "barker_proposal",  # backward-compatible alias for barker
     "window_adaptation",  # mcmc adaptation
     "low_rank_window_adaptation",
+    "walnuts_adaptation",
     "meads_adaptation",
     "chees_adaptation",
     "pathfinder_adaptation",

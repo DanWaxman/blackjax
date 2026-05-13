@@ -71,6 +71,31 @@ class CompilationTest(chex.TestCase):
             sample_key = jax.random.fold_in(rng_key, i)
             state, _ = step(sample_key, state)
 
+    def test_walnuts(self):
+        """Count the number of times the logdensity is compiled when using WALNUTS."""
+
+        @chex.assert_max_traces(n=20)
+        def logdensity_fn(x):
+            return jscipy.stats.norm.logpdf(x)
+
+        chex.clear_trace_counter()
+
+        rng_key = jax.random.key(0)
+        state = blackjax.walnuts.init(1.0, logdensity_fn)
+
+        kernel = blackjax.walnuts(
+            logdensity_fn,
+            step_size=1e-2,
+            inverse_mass_matrix=jnp.array([1.0]),
+            max_num_doublings=2,
+            max_num_micro_doublings=2,
+        )
+        step = jax.jit(kernel.step)
+
+        for i in range(10):
+            sample_key = jax.random.fold_in(rng_key, i)
+            state, _ = step(sample_key, state)
+
     def test_hmc_warmup(self):
         """Count the number of times the logdensity is compiled when using window
         adaptation to adapt the value of the step size and the inverse mass

@@ -91,6 +91,7 @@ marked *Sampling Book* are covered in depth at
 |---|---|---|---|
 | `hmc` | Hamiltonian Monte Carlo (static trajectory) | [Quickstart](examples/quickstart.md) | [API](autoapi/blackjax/mcmc/hmc/index) |
 | `nuts` | No-U-Turn Sampler (dynamic trajectory) | [Quickstart](examples/quickstart.md) | [API](autoapi/blackjax/mcmc/nuts/index) |
+| `walnuts` | Within-orbit Adaptive Leapfrog NUTS | [Funnel comparison](examples/howto_walnuts_funnel.ipynb) | [API](autoapi/blackjax/mcmc/walnuts/index) |
 | `dhmc` / `dynamic_hmc` | Dynamic HMC (alias of `nuts` trajectory logic, fixed integration) | — | [API](autoapi/blackjax/mcmc/dynamic_hmc/index) |
 | `mhmc` / `multinomial_hmc` | HMC with multinomial trajectory proposal | — | [API](autoapi/blackjax/mcmc/hmc/index) |
 | `dmhmc` | Dynamic HMC with multinomial proposal | — | [API](autoapi/blackjax/mcmc/dynamic_hmc/index) |
@@ -159,6 +160,7 @@ marked *Sampling Book* are covered in depth at
 | `blackjax.X` | Description | Guide | API |
 |---|---|---|---|
 | `window_adaptation` | Dual-averaging step-size + mass-matrix warmup (HMC/NUTS) | [Quickstart](examples/quickstart.md) | [API](autoapi/blackjax/adaptation/window_adaptation/index) |
+| `walnuts_adaptation` | WALNUTS macro-step warmup | [Funnel comparison](examples/howto_walnuts_funnel.ipynb) | [API](autoapi/blackjax/adaptation/walnuts_adaptation/index) |
 | `mclmc_find_L_and_step_size` | MCLMC trajectory-length + step-size tuning | [Sampling Book](https://blackjax-devs.github.io/sampling-book) | [API](autoapi/blackjax/adaptation/mclmc_adaptation/index) |
 | `adjusted_mclmc_find_L_and_step_size` | Adjusted MCLMC tuning | [Sampling Book](https://blackjax-devs.github.io/sampling-book) | [API](autoapi/blackjax/adaptation/adjusted_mclmc_adaptation/index) |
 | `chees_adaptation` | CHEES (chain-ensemble adaptation) | — | [API](autoapi/blackjax/adaptation/chees_adaptation/index) |
@@ -210,6 +212,7 @@ Use custom gradients?<examples/howto_custom_gradients.md>
 Use non-JAX log-prob functions?<examples/howto_other_frameworks.md>
 Build a Metropolis-Within-Gibbs sampler?<examples/howto_metropolis_within_gibbs.md>
 Use Laplace-preconditioned HMC?<examples/howto_laplace_hmc.md>
+Compare NUTS and WALNUTS on Neal's funnel?<examples/howto_walnuts_funnel.ipynb>
 Sample from the word BlackJAX using BlackJAX?<examples/howto_reproduce_the_blackjax_image.md>
 ```
 
