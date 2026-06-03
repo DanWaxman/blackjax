@@ -217,6 +217,38 @@ class WALNUTSTest(BlackJAXTest):
         np.testing.assert_allclose(parameters["energy_threshold"], 0.5)
         self.assertGreaterEqual(float(info.info.no_refinement_rate[-1]), 0.0)
 
+    def test_walnuts_adaptation_preserves_float64(self):
+        previous_x64 = jax.config.jax_enable_x64
+        jax.config.update("jax_enable_x64", True)
+        try:
+            inverse_mass_matrix = jnp.ones(1, dtype=jnp.float64)
+            warmup = blackjax.walnuts_adaptation(
+                std_normal_logdensity,
+                inverse_mass_matrix=inverse_mass_matrix,
+                initial_step_size=jnp.asarray(0.05, dtype=jnp.float64),
+                target_no_refinement_rate=0.5,
+                energy_threshold=jnp.asarray(0.5, dtype=jnp.float64),
+                max_num_doublings=2,
+                max_num_micro_doublings=2,
+            )
+
+            (_, parameters), info = warmup.run(
+                self.next_key(),
+                jnp.array([0.0], dtype=jnp.float64),
+                num_steps=5,
+            )
+
+            self.assertEqual(parameters["step_size"].dtype, jnp.float64)
+            self.assertEqual(info.info.no_refinement_rate.dtype, jnp.float64)
+            sampler = blackjax.walnuts(std_normal_logdensity, **parameters)
+            state = sampler.init(jnp.array([0.0], dtype=jnp.float64))
+            new_state, sampler_info = jax.jit(sampler.step)(self.next_key(), state)
+
+            self.assertEqual(new_state.position.dtype, jnp.float64)
+            self.assertEqual(sampler_info.no_refinement_rate.dtype, jnp.float64)
+        finally:
+            jax.config.update("jax_enable_x64", previous_x64)
+
 
 if __name__ == "__main__":
     chex.set_n_cpu_devices(1)

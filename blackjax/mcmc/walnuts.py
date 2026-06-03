@@ -329,7 +329,9 @@ def _sample_micro_level(
     return jnp.minimum(proposed_level, _as_int32(max_num_micro_doublings))
 
 
-def _new_diagnostics(max_num_micro_doublings: int) -> WALNUTSDiagnostics:
+def _new_diagnostics(
+    max_num_micro_doublings: int, dtype=jnp.float32
+) -> WALNUTSDiagnostics:
     max_possible_micro_steps = 1 << max_num_micro_doublings
     return WALNUTSDiagnostics(
         _as_int32(0),
@@ -338,7 +340,7 @@ def _new_diagnostics(max_num_micro_doublings: int) -> WALNUTSDiagnostics:
         _as_int32(max_possible_micro_steps),
         _as_int32(0),
         jnp.asarray(False),
-        -jnp.inf,
+        jnp.asarray(-jnp.inf, dtype=dtype),
     )
 
 
@@ -599,6 +601,9 @@ def _build_leaf(
         max_num_micro_doublings,
         micro_step_distribution,
     )
+    float_dtype = jnp.result_type(old_energy, step_size)
+    p_forward = jnp.asarray(p_forward, dtype=float_dtype)
+    p_reverse = jnp.asarray(p_reverse, dtype=float_dtype)
 
     new_energy = _energy(kinetic_energy, new_state)
     is_divergent = (new_energy - old_energy) > divergence_threshold
@@ -664,8 +669,17 @@ def _build_subtree(
     num_levels = max_num_doublings + 1
     max_num_steps = _micro_steps_from_level(depth)
     stack = _new_subtree_stack(initial_state, num_levels)
-    initial_subtree = _Subtree(initial_state, initial_state, initial_state, -jnp.inf)
-    diagnostics = _new_diagnostics(max_num_micro_doublings)
+    float_dtype = jnp.result_type(log_weight_start, step_size)
+    initial_subtree = _Subtree(
+        initial_state,
+        initial_state,
+        initial_state,
+        jnp.asarray(-jnp.inf, dtype=float_dtype),
+    )
+    diagnostics = _new_diagnostics(
+        max_num_micro_doublings,
+        dtype=float_dtype,
+    )
 
     def keep_building(carry):
         k, *_rest, done = carry
@@ -835,7 +849,8 @@ def iterative_walnuts_proposal(
         initial_subtree = _Subtree(
             initial_state, initial_state, initial_state, initial_log_weight
         )
-        diagnostics = _new_diagnostics(max_num_micro_doublings)
+        float_dtype = jnp.result_type(initial_energy, step_size)
+        diagnostics = _new_diagnostics(max_num_micro_doublings, dtype=float_dtype)
 
         def keep_expanding(carry):
             step, *_rest, is_turning, is_divergent, _diagnostics = carry
@@ -989,11 +1004,11 @@ def iterative_walnuts_proposal(
         generated_macro_steps = jnp.maximum(diagnostics.num_macro_steps, 1)
         num_macro_steps = diagnostics.num_macro_steps + 1
         no_refinement_rate = (
-            diagnostics.num_no_refinement / generated_macro_steps.astype(jnp.float32)
+            diagnostics.num_no_refinement / generated_macro_steps.astype(float_dtype)
         )
         acceptance_rate = (
             jnp.exp(diagnostics.sum_log_p_accept)
-            / generated_macro_steps.astype(jnp.float32)
+            / generated_macro_steps.astype(float_dtype)
         )
 
         max_micro_steps = jnp.maximum(diagnostics.max_micro_steps, 1)
